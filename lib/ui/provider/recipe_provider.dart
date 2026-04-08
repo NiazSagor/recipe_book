@@ -61,6 +61,25 @@ class RecipeProvider extends ChangeNotifier {
     }
   }
 
+  Future<String?> fetchRecipeVideo(String title) async {
+    final url = Uri.parse(
+        'https://api.spoonacular.com/food/videos/search?apiKey=$_apiKey&query=$title&number=1');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['videos'] != null && data['videos'].isNotEmpty) {
+          final String shortUrl = data['videos'][0]['youTubeId'];
+          return "https://www.youtube.com/watch?v=$shortUrl";
+        }
+      }
+    } catch (e) {
+      debugPrint("Video Fetch Error: $e");
+    }
+    return null;
+  }
+
   void toggleFavorite(Recipe recipe) {
     final isExist = _savedRecipes.contains(recipe);
     if (isExist) {

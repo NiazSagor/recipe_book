@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:recipe_book/model/recipe.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'provider/recipe_provider.dart';
 
@@ -173,7 +174,36 @@ class _DetailsScreenState extends State<DetailsScreen> {
                       width: double.infinity,
                       height: 55,
                       child: ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: () async {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Fetching recipe video..."),
+                              duration: Duration(seconds: 1),
+                            ),
+                          );
+                          final provider = context.read<RecipeProvider>();
+                          final videoUrl = await provider.fetchRecipeVideo(
+                            widget.recipe.title,
+                          );
+
+                          if (videoUrl != null) {
+                            final Uri uri = Uri.parse(videoUrl);
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(
+                                uri,
+                                mode: LaunchMode.inAppWebView,
+                              );
+                            }
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "No video found for this recipe.",
+                                ),
+                              ),
+                            );
+                          }
+                        },
                         icon: const Icon(
                           Icons.play_circle_fill,
                           color: Colors.white,
