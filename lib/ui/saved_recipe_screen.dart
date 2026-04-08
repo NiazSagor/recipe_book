@@ -45,18 +45,35 @@ class SavedRecipesScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 25),
               child: Container(
                 height: 50,
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: Colors.grey[100],
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: TabBar(
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
                   indicator: BoxDecoration(
                     color: Colors.orange,
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.orange.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   labelColor: Colors.white,
                   unselectedLabelColor: Colors.grey[500],
-                  labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                  labelStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                  unselectedLabelStyle: const TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 14,
+                  ),
                   tabs: const [
                     Tab(text: "Untried"),
                     Tab(text: "Made it"),
@@ -82,21 +99,37 @@ class SavedRecipesScreen extends StatelessWidget {
   }
 
   Widget _buildSavedList(BuildContext context) {
-    final provider = Provider.of<RecipeProvider>(context);
+    // Use watch to rebuild the list when a recipe is "unsaved"
+    final savedList = context.watch<RecipeProvider>().savedRecipes;
 
-    // In a real app, you would filter provider.popularRecipes by a list of saved IDs
+    if (savedList.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.bookmark_border, size: 60, color: Colors.grey[300]),
+            const SizedBox(height: 10),
+            const Text(
+              "No saved recipes yet!",
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
+
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
-      itemCount: provider.savedRecipes.length,
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+      itemCount: savedList.length,
       itemBuilder: (context, index) {
-        final recipe = provider.popularRecipes[index];
+        final recipe = savedList[index];
         return _savedRecipeTile(context, recipe);
       },
     );
   }
 
   Widget _savedRecipeTile(BuildContext context, Recipe recipe) {
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         Navigator.push(
           context,
@@ -105,10 +138,10 @@ class SavedRecipesScreen extends StatelessWidget {
           ),
         );
       },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 20),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Recipe Image
             ClipRRect(
@@ -125,6 +158,7 @@ class SavedRecipesScreen extends StatelessWidget {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     recipe.title,
@@ -135,7 +169,7 @@ class SavedRecipesScreen extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
                       const Icon(Icons.star, color: Colors.orange, size: 16),
@@ -148,19 +182,16 @@ class SavedRecipesScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 2),
                   Text(
                     "By: Spoonacular Chef",
-                    style: TextStyle(color: Colors.grey[400], fontSize: 13),
+                    style: TextStyle(color: Colors.grey[400], fontSize: 12),
                   ),
                 ],
               ),
             ),
-            // Bookmark Toggle
             IconButton(
               icon: const Icon(Icons.bookmark, color: Colors.orange),
               onPressed: () {
-                // Accesses the provider to remove from saved list
                 context.read<RecipeProvider>().toggleFavorite(recipe);
               },
             ),
