@@ -8,6 +8,7 @@ class RecipeProvider extends ChangeNotifier {
   final String _apiKey = '06add25c93714538a539fd6244915f9b';
   List<Recipe> _popularRecipes = [];
   final List<Recipe> _savedRecipes = [];
+
   List<Recipe> get savedRecipes => _savedRecipes;
   bool _isLoading = false;
 
@@ -37,6 +38,27 @@ class RecipeProvider extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> fetchRecipeDetails(int id) async {
+    final url = Uri.parse(
+      'https://api.spoonacular.com/recipes/$id/information?apiKey=$_apiKey',
+    );
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final fullRecipe = Recipe.fromJson(data);
+        int index = _popularRecipes.indexWhere((r) => r.id == id);
+        if (index != -1) {
+          _popularRecipes[index] = fullRecipe;
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      debugPrint("Detail Fetch Error: $e");
+    }
   }
 
   void toggleFavorite(Recipe recipe) {

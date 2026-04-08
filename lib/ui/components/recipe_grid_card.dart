@@ -133,10 +133,11 @@ class RecipeListTile extends StatelessWidget {
                     children: [
                       const Icon(Icons.star, size: 14, color: Colors.orange),
                       Text(
-                        " ${recipe.aggregateLikes?.toStringAsFixed(1) ?? '4.0'}  •  By Kadin Curtis",
+                        " ${recipe.aggregateLikes.toStringAsFixed(1)}",
+                        // This turns 5.0 into "5.0"
                         style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
                         ),
                       ),
                     ],
