@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:recipe_book/model/recipe.dart';
+
+import 'provider/recipe_provider.dart';
 
 class DetailsScreen extends StatelessWidget {
   final Recipe recipe;
@@ -31,7 +34,16 @@ class DetailsScreen extends StatelessWidget {
                   _circleButton(Icons.arrow_back, () => Navigator.pop(context)),
                   const Text("Recipe Details",
                       style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
-                  _circleButton(Icons.bookmark_border, () {}),
+                  Consumer<RecipeProvider>(
+                    builder: (context, provider, child) {
+                      final isSaved = provider.isFavorite(recipe);
+                      return _circleButton(
+                        isSaved ? Icons.bookmark : Icons.bookmark_border,
+                            () => provider.toggleFavorite(recipe),
+                        color: isSaved ? Colors.orange : Colors.white,
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -125,13 +137,20 @@ class DetailsScreen extends StatelessWidget {
 
   // --- UI Helpers ---
 
-  Widget _circleButton(IconData icon, VoidCallback onTap) {
+  Widget _circleButton(IconData icon, VoidCallback onTap, {Color color = Colors.white}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: Colors.black.withOpacity(0.3), shape: BoxShape.circle),
-        child: Icon(icon, color: Colors.white, size: 20),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.3),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: color, // Now dynamic!
+          size: 20,
+        ),
       ),
     );
   }

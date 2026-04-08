@@ -7,6 +7,8 @@ import 'package:recipe_book/model/recipe.dart';
 class RecipeProvider extends ChangeNotifier {
   final String _apiKey = '06add25c93714538a539fd6244915f9b';
   List<Recipe> _popularRecipes = [];
+  final List<Recipe> _savedRecipes = [];
+  List<Recipe> get savedRecipes => _savedRecipes;
   bool _isLoading = false;
 
   List<Recipe> get popularRecipes => _popularRecipes;
@@ -35,5 +37,19 @@ class RecipeProvider extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  void toggleFavorite(Recipe recipe) {
+    final isExist = _savedRecipes.contains(recipe);
+    if (isExist) {
+      _savedRecipes.remove(recipe);
+    } else {
+      _savedRecipes.add(recipe);
+    }
+    notifyListeners();
+  }
+
+  bool isFavorite(Recipe recipe) {
+    return _savedRecipes.contains(recipe);
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:recipe_book/ui/components/recipe_grid_card.dart';
 import 'package:recipe_book/ui/provider/recipe_provider.dart';
+import 'package:recipe_book/ui/saved_recipe_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,8 +16,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     // Fetch data when screen loads
-    Future.microtask(() =>
-        context.read<RecipeProvider>().fetchPopularRecipes());
+    Future.microtask(
+      () => context.read<RecipeProvider>().fetchPopularRecipes(),
+    );
   }
 
   @override
@@ -39,26 +41,38 @@ class _HomeScreenState extends State<HomeScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Welcome Back!",
-                          style: TextStyle(color: Colors.grey[400], fontSize: 14)),
-                      const Text("Omar Calzoni",
-                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                      Text(
+                        "Welcome Back!",
+                        style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                      ),
+                      const Text(
+                        "Omar Calzoni",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                   Row(
                     children: [
                       _headerIcon(Icons.search),
                       const SizedBox(width: 15),
-                      _headerIcon(Icons.notifications_none, hasNotification: true),
+                      _headerIcon(
+                        Icons.notifications_none,
+                        hasNotification: true,
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
               const SizedBox(height: 30),
 
               // --- Categories ---
-              const Text("Categories",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                "Categories",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 15),
               SizedBox(
                 height: 40,
@@ -75,39 +89,47 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 30),
 
               // --- Popular Recipes ---
-              const Text("Popular Recipes",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                "Popular Recipes",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 15),
               provider.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 15,
-                  crossAxisSpacing: 15,
-                  childAspectRatio: 0.8,
-                ),
-                itemCount: provider.popularRecipes.length.clamp(0, 2),
-                itemBuilder: (context, index) =>
-                    RecipeGridCard(recipe: provider.popularRecipes[index]),
-              ),
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 15,
+                            crossAxisSpacing: 15,
+                            childAspectRatio: 0.8,
+                          ),
+                      itemCount: provider.popularRecipes.length.clamp(0, 2),
+                      itemBuilder: (context, index) => RecipeGridCard(
+                        recipe: provider.popularRecipes[index],
+                      ),
+                    ),
 
               const SizedBox(height: 30),
 
               // --- Recipes of The Week ---
-              const Text("Recipes of The Week",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                "Recipes of The Week",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 15),
               // List of vertical recipes
-              ...provider.popularRecipes.skip(2).map((recipe) =>
-                  RecipeListTile(recipe: recipe)).toList(),
+              ...provider.popularRecipes
+                  .skip(2)
+                  .map((recipe) => RecipeListTile(recipe: recipe))
+                  .toList(),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: _customBottomNavBar(),
+      bottomNavigationBar: _customBottomNavBar(context),
     );
   }
 
@@ -126,12 +148,17 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         if (hasNotification)
           Positioned(
-            right: 0, top: 0,
+            right: 0,
+            top: 0,
             child: Container(
-              height: 10, width: 10,
-              decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
+              height: 10,
+              width: 10,
+              decoration: const BoxDecoration(
+                color: Colors.orange,
+                shape: BoxShape.circle,
+              ),
             ),
-          )
+          ),
       ],
     );
   }
@@ -145,14 +172,17 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.circular(20),
       ),
       alignment: Alignment.center,
-      child: Text(label, style: TextStyle(
+      child: Text(
+        label,
+        style: TextStyle(
           color: isActive ? Colors.white : Colors.grey[400],
-          fontWeight: FontWeight.bold
-      )),
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 
-  Widget _customBottomNavBar() {
+  Widget _customBottomNavBar(BuildContext context) {
     return BottomAppBar(
       height: 80,
       child: Row(
@@ -160,12 +190,18 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           const Icon(Icons.home_filled, color: Colors.orange),
           const Icon(Icons.calendar_month, color: Colors.grey),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
-            child: const Icon(Icons.qr_code_scanner, color: Colors.white),
+          // ... Scanner button ...
+          IconButton(
+            icon: const Icon(Icons.bookmark, color: Colors.grey),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SavedRecipesScreen(),
+                ),
+              );
+            },
           ),
-          const Icon(Icons.bookmark, color: Colors.grey),
           const Icon(Icons.person, color: Colors.grey),
         ],
       ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:recipe_book/model/recipe.dart';
+import 'package:recipe_book/ui/details_screen.dart';
 
 import 'provider/recipe_provider.dart';
 
@@ -16,14 +18,23 @@ class SavedRecipesScreen extends StatelessWidget {
           backgroundColor: Colors.white,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.black,
+              size: 20,
+            ),
             onPressed: () => Navigator.pop(context),
           ),
-          title: const Text("Saved Recipes",
-              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          title: const Text(
+            "Saved Recipes",
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
           centerTitle: true,
           actions: [
-            IconButton(icon: const Icon(Icons.search, color: Colors.black), onPressed: () {}),
+            IconButton(
+              icon: const Icon(Icons.search, color: Colors.black),
+              onPressed: () {},
+            ),
           ],
         ),
         body: Column(
@@ -76,54 +87,85 @@ class SavedRecipesScreen extends StatelessWidget {
     // In a real app, you would filter provider.popularRecipes by a list of saved IDs
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 25),
-      itemCount: provider.popularRecipes.length,
+      itemCount: provider.savedRecipes.length,
       itemBuilder: (context, index) {
         final recipe = provider.popularRecipes[index];
-        return _savedRecipeTile(recipe);
+        return _savedRecipeTile(context, recipe);
       },
     );
   }
 
-  Widget _savedRecipeTile(dynamic recipe) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Recipe Image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: Image.network(
-              recipe.image,
-              height: 85,
-              width: 85,
-              fit: BoxFit.cover,
-            ),
+  Widget _savedRecipeTile(BuildContext context, Recipe recipe) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailsScreen(recipe: recipe),
           ),
-          const SizedBox(width: 15),
-          // Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(recipe.title,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 5),
-                Row(
-                  children: [
-                    const Icon(Icons.star, color: Colors.orange, size: 16),
-                    const Text(" 4,5", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text("By: Kadin Curtis",
-                    style: TextStyle(color: Colors.grey[400], fontSize: 13)),
-              ],
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 20),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Recipe Image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Image.network(
+                recipe.image,
+                height: 85,
+                width: 85,
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          // Orange Bookmark
-          const Icon(Icons.bookmark, color: Colors.orange),
-        ],
+            const SizedBox(width: 15),
+            // Info Section
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    recipe.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      const Icon(Icons.star, color: Colors.orange, size: 16),
+                      Text(
+                        " ${recipe.aggregateLikes?.toStringAsFixed(1) ?? '4.5'}",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "By: Spoonacular Chef",
+                    style: TextStyle(color: Colors.grey[400], fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+            // Bookmark Toggle
+            IconButton(
+              icon: const Icon(Icons.bookmark, color: Colors.orange),
+              onPressed: () {
+                // Accesses the provider to remove from saved list
+                context.read<RecipeProvider>().toggleFavorite(recipe);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

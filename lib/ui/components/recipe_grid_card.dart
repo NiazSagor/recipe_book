@@ -1,7 +1,9 @@
 // The Square Cards at the top
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:recipe_book/model/recipe.dart';
 import 'package:recipe_book/ui/details_screen.dart';
+import 'package:recipe_book/ui/provider/recipe_provider.dart';
 
 // 1. The Square Cards (Popular Recipes section)
 class RecipeGridCard extends StatelessWidget {
@@ -142,7 +144,26 @@ class RecipeListTile extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.bookmark_border, color: Colors.grey),
+            // Inside RecipeGridCard Stack
+            Positioned(
+              top: 10,
+              right: 10,
+              child: GestureDetector(
+                onTap: () =>
+                    context.read<RecipeProvider>().toggleFavorite(recipe),
+                child: CircleAvatar(
+                  radius: 15,
+                  backgroundColor: Colors.black26,
+                  child: Icon(
+                    context.watch<RecipeProvider>().isFavorite(recipe)
+                        ? Icons.bookmark
+                        : Icons.bookmark_border,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
